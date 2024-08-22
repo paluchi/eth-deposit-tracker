@@ -1,0 +1,17 @@
+# Dockerfile for Grafana
+FROM grafana/grafana:latest
+
+# Expose Grafana's default port
+EXPOSE 3000
+
+# Copy provisioning files
+COPY provisioning /etc/grafana/provisioning
+
+# Copy dashboards
+COPY provisioning/dashboards /var/lib/grafana/dashboards
+
+# Copy the setup script
+COPY setup-telegram.sh /usr/local/bin/setup-telegram.sh
+
+# Make sure to run the setup script after Grafana starts
+CMD ["/run.sh", "&&", "/usr/local/bin/setup-telegram.sh"]

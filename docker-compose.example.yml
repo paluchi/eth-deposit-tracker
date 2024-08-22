@@ -1,0 +1,58 @@
+version: "3.7"
+
+services:
+  grafana:
+    build:
+      context: ./grafana
+      dockerfile: Dockerfile.grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - TELEGRAM_BOT_TOKEN=
+      - TELEGRAM_CHAT_ID=
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  prometheus:
+    build:
+      context: .
+      dockerfile: Dockerfile.prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+    depends_on:
+      - scrapper
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: beacon_eth_deposits
+
+  scrapper:
+    build:
+      context: .
+      dockerfile: Dockerfile.scrapper
+    ports:
+      - "4000:4000"
+    depends_on:
+      - mongodb
+      - grafana
+      - prometheus
+    environment:
+      - ALCHEMY_API_KEY=
+      - MONGO_URI=
+      - TELEGRAM_NOTIFICATIONS_BOT_TOKEN=
+      - TELEGRAM_NOTIFICATIONS_CHAT_ID=
+
+volumes:
+  grafana_data:
+  prometheus_data:
+  mongodb_data:

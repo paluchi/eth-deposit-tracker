@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": "./src", // Set the baseUrl to the src directory
+    "paths": {
+      "utils/*": ["utils/*"], // Map utils to the utils directory
+      "core/*": ["core/*"], // Map core to the core directory
+      "adapters/*": ["adapters/*"], // Map core to the core directory
+      "database/*": ["database/*"] // Map database to the core directory
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}

@@ -1,0 +1,82 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "ETH Deposit Tracker",
+    "uid": "eth-deposit-tracker",
+    "timezone": "browser",
+    "panels": [
+      {
+        "type": "timeseries",
+        "title": "Total Deposit Amount Over Time",
+        "targets": [
+          {
+            "expr": "sum(rate(deposit_amount[5m])) by (pubkey)",
+            "legendFormat": "Total Deposits",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 9
+        }
+      },
+      {
+        "type": "bargauge",
+        "title": "Number of Deposits Over Time",
+        "targets": [
+          {
+            "expr": "count(rate(deposit_amount[5m])) by (pubkey)",
+            "legendFormat": "Deposit Count",
+            "refId": "B"
+          }
+        ],
+        "gridPos": {
+          "x": 12,
+          "y": 0,
+          "w": 12,
+          "h": 9
+        }
+      },
+      {
+        "type": "stat",
+        "title": "Average Deposit Amount",
+        "targets": [
+          {
+            "expr": "avg(deposit_amount)",
+            "legendFormat": "Avg Deposit",
+            "refId": "C"
+          }
+        ],
+        "gridPos": {
+          "x": 0,
+          "y": 9,
+          "w": 12,
+          "h": 9
+        }
+      },
+      {
+        "type": "table",
+        "title": "Individual Deposit Details",
+        "targets": [
+          {
+            "expr": "deposit_amount",
+            "legendFormat": "{{blockNumber}}",
+            "refId": "D"
+          }
+        ],
+        "gridPos": {
+          "x": 0,
+          "y": 18,
+          "w": 24,
+          "h": 10
+        },
+        "options": {
+          "showHeader": true
+        }
+      }
+    ]
+  },
+  "overwrite": true
+}
