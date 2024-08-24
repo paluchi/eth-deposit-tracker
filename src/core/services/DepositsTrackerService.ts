@@ -72,7 +72,6 @@ export class DepositsTrackerService implements IDepositsTrackerService {
         blockNumber: txData.blockNumber,
         blockTimestamp: txData.blockTimestamp,
         pubkey: txData.from,
-        amount: txData.value,
         fee: fee,
         hash: txData.hash,
       };

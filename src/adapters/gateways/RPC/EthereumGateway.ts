@@ -40,7 +40,6 @@ class EthereumProvider implements IBlockchainProvider {
       timeout?: number;
     } = {}
   ): Promise<any> {
-    console.log("txHash", txHash);
     try {
       // Make a request to the Ethereum node to get the transaction trace
       const opts = {

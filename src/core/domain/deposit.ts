@@ -7,7 +7,6 @@ export const DepositSchema = z.object({
   fee: z.bigint().optional(),
   hash: z.string().optional(),
   pubkey: z.string(),
-  amount: z.bigint(),
 });
 
 // Infer the TypeScript interface from the Zod schema
