@@ -28,6 +28,10 @@ class EthereumProvider implements IBlockchainProvider {
     return this.provider.getBlock(blockNumberOrHash);
   }
 
+  async getBlockNumber(): Promise<any> {
+    return this.provider.getBlockNumber();
+  }
+
   async getTransactionTrace(
     txHash: string,
     options: {
@@ -64,7 +68,10 @@ class EthereumProvider implements IBlockchainProvider {
 }
 
 // Extend the generic BlockchainGateway to create an Ethereum-specific gateway
-export class EthereumGateway extends BlockchainGateway implements IBlockchainGateway {
+export class EthereumGateway
+  extends BlockchainGateway
+  implements IBlockchainGateway
+{
   constructor(config: EthereumGatewayConfig) {
     const ethereumProvider = new EthereumProvider(config);
     super({ provider: ethereumProvider });

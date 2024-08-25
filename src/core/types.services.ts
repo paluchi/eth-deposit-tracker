@@ -1,4 +1,6 @@
 export interface IDepositsTrackerService {
-  processLastBlockTransactions(batchSize?: number): Promise<void>;
-  startPendingTransactionsProcesor(): void;
+  processBlockTransactions(block: number | string): Promise<void>;
+  processBlockTransactionsFrom(blockNumber: number): Promise<void>;
+  startPendingTransactionsListener(): void;
+  startMintedBlocksListener(): void;
 }

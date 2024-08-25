@@ -23,7 +23,7 @@ export class BlockchainGateway implements IBlockchainGateway {
 
   constructor(config: BlockchainGatewayConfig) {
     this.provider = config.provider;
-    this.batchSize = config.batchSize || 15;
+    this.batchSize = config.batchSize || 20;
     this.retries = config.retries || 15;
   }
 
@@ -43,10 +43,10 @@ export class BlockchainGateway implements IBlockchainGateway {
   }
 
   // Fetch and process transactions from the latest block in batches
-  public async fetchBlockTransactionsByHash(
+  public async fetchBlockTransactions(
     blockNumberOrHash: number | string
   ): Promise<TransactionData[] | null> {
-    console.info("Fetching the latest block transactions...");
+    console.info("Fetching block transactions from block:", blockNumberOrHash);
     const block = await this.provider.getBlock(blockNumberOrHash);
 
     if (block && block.transactions) {
@@ -73,6 +73,20 @@ export class BlockchainGateway implements IBlockchainGateway {
       const data = await this.getTransactionData(txHash);
       data && callback(data);
     });
+  }
+
+  // Watch for pending transactions in real-time
+  public async watchMintedBlocks(
+    callback: (blockNumber: number) => void
+  ): Promise<void> {
+    console.info("Watching for new minted blocks...");
+    this.provider.on("block", async (blockNumber: number) => {
+      callback(blockNumber);
+    });
+  }
+
+  public async getBlockNumber() {
+    return this.provider.getBlockNumber();
   }
 
   private async processTransactionQueue(): Promise<void> {
@@ -111,7 +125,7 @@ export class BlockchainGateway implements IBlockchainGateway {
       if (tx) {
         const block = await this.provider.getBlock(tx.blockNumber);
         // const trace = await this.provider.getTransactionTrace(txHash);
-        // console.log("trace", trace);
+        // console.info("trace", trace);
 
         transactionData = {
           value: tx.value,
@@ -138,8 +152,8 @@ export class BlockchainGateway implements IBlockchainGateway {
         await sleep(backoff);
         return this.fetchTransactionData(txHash, retries - 1, backoff * 2); // Retry with exponential backoff
       } else {
-        console.error("Error fetching transaction data:", error);
-        return null;
+        console.error("System could not rerover from rate limit error");
+        throw error;
       }
     }
   }

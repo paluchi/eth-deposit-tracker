@@ -8,7 +8,7 @@ export interface IDeposit extends Document, Deposit {}
 const DepositSchema: Schema = new Schema({
   blockNumber: { type: Number, required: true },
   blockTimestamp: { type: Number, required: true },
-  fee: { type: Number, required: false },
+  fee: { type: BigInt, required: false },
   hash: { type: String, required: false },
   pubkey: { type: String, required: true },
 });

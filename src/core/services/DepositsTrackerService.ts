@@ -11,61 +11,95 @@ export class DepositsTrackerService implements IDepositsTrackerService {
   private blockchainGateway: IBlockchainGateway;
   private notificatorGateway: INotifierGateway | undefined;
   private depositsRepository: IDepositsRepository;
-  private listenTo: string[];
+  private filterIn: string[];
 
   constructor(options: {
     blockchainGateway: IBlockchainGateway;
     notificatorGateway?: INotifierGateway;
     depositsRepository: IDepositsRepository;
-    listenTo: string[];
+    filterIn: string[];
   }) {
     this.blockchainGateway = options.blockchainGateway;
     this.notificatorGateway = options.notificatorGateway;
     this.depositsRepository = options.depositsRepository;
-    this.listenTo = options.listenTo;
+    this.filterIn = options.filterIn;
 
-    this.notificatorGateway?.sendNotification(
-      "Deposits tracker service started\n\nListening to: \n" +
-        this.listenTo.join("\n")
-    );
+    if (this.filterIn.length)
+      console.info(
+        `Filtering deposits for addresses: ${this.filterIn.join(", ")}`
+      );
   }
 
   // Process the last block's transactions in batches
-  public async processLastBlockTransactions(): Promise<void> {
-    const deposits = await this.blockchainGateway.fetchBlockTransactionsByHash(
-      "latest"
+  public async processBlockTransactions(
+    blockNumberOrHash: string | number = "latest"
+  ): Promise<void> {
+    const transactions = await this.blockchainGateway.fetchBlockTransactions(
+      blockNumberOrHash
     );
 
     const sotreBatchSize = 5;
-    if (deposits && deposits.length > 0) {
-      const batches = Math.ceil(deposits.length / sotreBatchSize);
+    if (transactions && transactions.length > 0) {
+      const batches = Math.ceil(transactions.length / sotreBatchSize);
       for (let i = 0; i < batches; i++) {
-        const batch = deposits.slice(
+        const batch = transactions.slice(
           i * sotreBatchSize,
           (i + 1) * sotreBatchSize
         );
-        for (const deposit of batch) {
-          await this.onDepositProcessed(deposit);
+        for (const tx of batch) {
+          await this.processTransactions(tx);
         }
       }
     }
   }
 
-  // Listen to pending transactions in real-time
-  public startPendingTransactionsProcesor(): void {
-    this.blockchainGateway.watchPendingTransactions(
-      (deposit: TransactionData) => {
-        this.onDepositProcessed(deposit);
-      }
+  public async processBlockTransactionsFrom(blockNumber: number) {
+    const lastStoredBlockNumber =
+      (await this.depositsRepository.getLatestStoredBlock()) || blockNumber;
+    if (lastStoredBlockNumber)
+      console.info(
+        `Executing block txs processing from block number ${lastStoredBlockNumber} as it's last stored block number:`
+      );
+
+    let latestBlock = await this.blockchainGateway.getBlockNumber();
+    console.info(`Latest block number: ${latestBlock}`);
+
+    const promises = [];
+    for (let i = blockNumber; i <= latestBlock; i++) {
+      promises.push(this.processBlockTransactions(i));
+    }
+    await Promise.all(promises);
+
+    console.info(
+      `Finished processing blocks from ${blockNumber} to ${latestBlock}`
     );
   }
 
-  private async onDepositProcessed(txData: TransactionData): Promise<void> {
-    try {
-      // Check if deposit corresponds to the public key
-      if (!this.listenTo.includes(txData.to)) return;
+  // Listen to pending transactions in real-time
+  public startPendingTransactionsListener(): void {
+    this.blockchainGateway.watchPendingTransactions((tx: TransactionData) => {
+      // Check if tx corresponds to the public key
+      this.processTransactions(tx);
+    });
+  }
 
-      // // Calculate the transaction fee as the product of gas limit and gas price
+  // Listen to new minted blocks in real-time
+  public startMintedBlocksListener(): void {
+    this.blockchainGateway.watchMintedBlocks((blockNumber: number) => {
+      this.processBlockTransactions(blockNumber);
+      // Check if tx corresponds to the public key
+      // this.processTransactions(tx);
+    });
+  }
+
+  private async processTransactions(txData: TransactionData): Promise<void> {
+    try {
+      if (!this.filterIn.includes(txData.to)) return;
+
+      console.info("Found deposit transaction:", txData.hash);
+
+      // Calculate the transaction fee as the product of gas limit and gas price
+      // TODO - Check this is acurate
       const fee = txData.gasLimit * txData.gasPrice;
 
       const deposit: Deposit = {
@@ -86,7 +120,6 @@ export class DepositsTrackerService implements IDepositsTrackerService {
         `Deposit processed: ${txData.hash}\n\nAmount: ${txData.value}\nFee: ${fee}\nFrom: ${txData.from}\nTo: ${txData.to}\nBlock: ${txData.blockNumber}`
       );
     } catch (error) {
-      console.log("error", error);
       await this.notificatorGateway?.sendNotification(
         `Error processing deposit: ${txData.hash}`
       );

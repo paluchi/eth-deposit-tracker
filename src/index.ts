@@ -1,14 +1,17 @@
 import { getEthBeaconDepositTrackerService } from "contexts/EthBeacon";
+import envs from "utils/env";
 
 const main = async () => {
   const ethBeaconDepositTrackerService =
     await getEthBeaconDepositTrackerService();
 
   // Process the latest block
-  await ethBeaconDepositTrackerService.processLastBlockTransactions();
+  ethBeaconDepositTrackerService.processBlockTransactionsFrom(
+    envs.ETH_BLOCK_FROM
+  );
 
   // Listen to pending transactions
-  ethBeaconDepositTrackerService.startPendingTransactionsProcesor();
+  ethBeaconDepositTrackerService.startMintedBlocksListener();
 };
 
 main();

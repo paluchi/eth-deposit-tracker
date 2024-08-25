@@ -33,7 +33,7 @@ const getMongooseConnection = async () => {
 
 const getDepositsRepository = async () => {
   if (!depositsRepository) {
-    console.log("Creating new DepositsRepository");
+    console.info("Creating new DepositsRepository");
 
     await getMongooseConnection();
 
@@ -45,7 +45,7 @@ const getDepositsRepository = async () => {
 
 const getEthGateway = async () => {
   if (!ethGateway) {
-    console.log("Creating new EthereumGateway");
+    console.info("Creating new EthereumGateway");
 
     ethGateway = new EthereumGateway({
       rpcUrl: "https://eth-mainnet.g.alchemy.com",
@@ -58,7 +58,7 @@ const getEthGateway = async () => {
 
 const getTelegramNotifierGateway = async () => {
   if (!telegramNotifierGateway) {
-    console.log("Creating new TelegramNotifierGateway");
+    console.info("Creating new TelegramNotifierGateway");
 
     telegramNotifierGateway = new TelegramNotifierGateway({
       botToken: envs.TELEGRAM_NOTIFICATIONS_BOT_TOKEN,
@@ -84,10 +84,10 @@ export const getEthBeaconDepositTrackerService = async () => {
       blockchainGateway: ethGateway,
       // notificatorGateway: telegramNotifierGateway,
       depositsRepository: depositsRepository,
-      listenTo: ["0x00000000219ab540356cBB839Cbe05303d7705Fa"],
+      filterIn: ["0x00000000219ab540356cBB839Cbe05303d7705Fa"],
     });
 
-    console.log("EthBeaconService created");
+    console.info("EthBeaconService created");
   }
 
   return ethBeaconService;
