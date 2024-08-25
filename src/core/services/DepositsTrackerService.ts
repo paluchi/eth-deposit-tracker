@@ -47,7 +47,7 @@ export class DepositsTrackerService implements IDepositsTrackerService {
           (i + 1) * sotreBatchSize
         );
         for (const tx of batch) {
-          await this.processTransactions(tx);
+          await this.processTransaction(tx);
         }
       }
     }
@@ -79,7 +79,7 @@ export class DepositsTrackerService implements IDepositsTrackerService {
   public startPendingTransactionsListener(): void {
     this.blockchainGateway.watchPendingTransactions((tx: TransactionData) => {
       // Check if tx corresponds to the public key
-      this.processTransactions(tx);
+      this.processTransaction(tx);
     });
   }
 
@@ -92,7 +92,7 @@ export class DepositsTrackerService implements IDepositsTrackerService {
     });
   }
 
-  private async processTransactions(txData: TransactionData): Promise<void> {
+  private async processTransaction(txData: TransactionData): Promise<void> {
     try {
       if (!this.filterIn.includes(txData.to)) return;
 

@@ -75,14 +75,14 @@ export const getEthBeaconDepositTrackerService = async () => {
 
     const depositsRepository = await getDepositsRepository();
 
-    // const telegramNotifierGateway = await getTelegramNotifierGateway();
+    const telegramNotifierGateway = await getTelegramNotifierGateway();
 
     // Initialize the EthereumGateway with the Alchemy API key
     const ethGateway = await getEthGateway();
 
     ethBeaconService = new DepositsTrackerService({
       blockchainGateway: ethGateway,
-      // notificatorGateway: telegramNotifierGateway,
+      notificatorGateway: telegramNotifierGateway,
       depositsRepository: depositsRepository,
       filterIn: ["0x00000000219ab540356cBB839Cbe05303d7705Fa"],
     });
