@@ -7,6 +7,10 @@ import {
 import { IDepositsRepository } from "core/types.repositories";
 import { IDepositsTrackerService } from "core/types.services";
 
+// TODO - would be nice to store which was the last block processed
+
+// NOTE - error handling for fetches to data gateways is missing and it's relative to business logics needs
+
 export class DepositsTrackerService implements IDepositsTrackerService {
   private blockchainGateway: IBlockchainGateway;
   private notificatorGateway: INotifierGateway | undefined;
@@ -28,6 +32,11 @@ export class DepositsTrackerService implements IDepositsTrackerService {
       console.info(
         `Filtering deposits for addresses: ${this.filterIn.join(", ")}`
       );
+
+    // Send a notification
+    this.notificatorGateway?.sendNotification(
+      `Deposits tracker service started`
+    );
   }
 
   // Process the last block's transactions in batches
@@ -58,7 +67,7 @@ export class DepositsTrackerService implements IDepositsTrackerService {
       (await this.depositsRepository.getLatestStoredBlock()) || blockNumber;
     if (lastStoredBlockNumber)
       console.info(
-        `Executing block txs processing from block number ${lastStoredBlockNumber} as it's last stored block number:`
+        `Executing block txs processing from block number ${lastStoredBlockNumber} as it's <last stored/requested> block number:`
       );
 
     let latestBlock = await this.blockchainGateway.getBlockNumber();
