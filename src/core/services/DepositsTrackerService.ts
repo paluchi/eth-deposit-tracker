@@ -5,7 +5,7 @@ import {
   TransactionData,
 } from "core/types.gateways";
 import { IDepositsRepository } from "core/types.repositories";
-import { IDepositsTrackerService } from "core/types.services";
+import { DepositsTrackerService as IDepositsTrackerService } from "core/types.services";
 
 // TODO - would be nice to store which was the last block processed
 
@@ -74,13 +74,13 @@ export class DepositsTrackerService implements IDepositsTrackerService {
     console.info(`Latest block number: ${latestBlock}`);
 
     const promises = [];
-    for (let i = blockNumber; i <= latestBlock; i++) {
+    for (let i = lastStoredBlockNumber; i <= latestBlock; i++) {
       promises.push(this.processBlockTransactions(i));
     }
     await Promise.all(promises);
 
     console.info(
-      `Finished processing blocks from ${blockNumber} to ${latestBlock}`
+      `Finished processing blocks from ${lastStoredBlockNumber} to ${latestBlock}`
     );
   }
 
@@ -117,6 +117,9 @@ export class DepositsTrackerService implements IDepositsTrackerService {
         pubkey: txData.from,
         fee: fee,
         hash: txData.hash,
+        blockchain: this.blockchainGateway.blockchain,
+        network: this.blockchainGateway.network,
+        token: this.blockchainGateway.token,
       };
 
       DepositSchema.parse(deposit);

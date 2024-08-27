@@ -9,6 +9,9 @@ interface EthereumGatewayConfig {
   apiKey: string;
   network?: ethers.Networkish; // Optional network parameter
   version?: string; // Optional version parameter
+  metadata: {
+    network: "mainnet" | "ropsten" | "rinkeby" | "goerli" | "kovan";
+  };
 }
 
 // Implement the Ethereum-specific provider that adheres to the IBlockchainProvider interface
@@ -72,8 +75,14 @@ export class EthereumGateway
   extends BlockchainGateway
   implements IBlockchainGateway
 {
+  token: string = "ETH";
   constructor(config: EthereumGatewayConfig) {
     const ethereumProvider = new EthereumProvider(config);
-    super({ provider: ethereumProvider });
+    super({
+      provider: ethereumProvider,
+      blockchain: "ethereum",
+      network: config.metadata.network,
+      token: "ETH",
+    });
   }
 }

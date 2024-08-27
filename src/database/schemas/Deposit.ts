@@ -11,6 +11,9 @@ const DepositSchema: Schema = new Schema({
   fee: { type: BigInt, required: false },
   hash: { type: String, required: false },
   pubkey: { type: String, required: true },
+  blockchain: { type: String, required: true },
+  network: { type: String, required: true },
+  token: { type: String, required: true },
 });
 
 // Create and export the Mongoose model

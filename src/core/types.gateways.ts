@@ -26,16 +26,34 @@ export interface IBlockchainProvider {
 }
 
 // Interface for the generic blockchain gateway
-export interface IBlockchainGateway {
-  getTransactionData(txHash: string): Promise<TransactionData | null>;
-  fetchBlockTransactions(
+export class IBlockchainGateway {
+  public blockchain: string = "";
+  public network: string = "";
+  public token: string = "";
+
+  public async getTransactionData(
+    txHash: string
+  ): Promise<TransactionData | null> {
+    throw new Error("Not implemented");
+  }
+  public async fetchBlockTransactions(
     blockNumberOrHash: string | number
-  ): Promise<TransactionData[] | null>;
-  watchPendingTransactions(
+  ): Promise<TransactionData[] | null> {
+    throw new Error("Not implemented");
+  }
+  public async watchPendingTransactions(
     callback: (data: TransactionData) => void
-  ): Promise<void>;
-  watchMintedBlocks(callback: (blockNumber: number) => void): Promise<void>;
-  getBlockNumber(): Promise<number>;
+  ): Promise<void> {
+    throw new Error("Not implemented");
+  }
+  public async watchMintedBlocks(
+    callback: (blockNumber: number) => void
+  ): Promise<void> {
+    throw new Error("Not implemented");
+  }
+  public async getBlockNumber(): Promise<number> {
+    throw new Error("Not implemented");
+  }
 }
 
 // Interface for the notifications gateway

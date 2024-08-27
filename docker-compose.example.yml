@@ -34,7 +34,7 @@ services:
     volumes:
       - mongodb_data:/data/db
     environment:
-      MONGO_INITDB_DATABASE: beacon_eth_deposits
+      MONGO_INITDB_DATABASE: deposits
 
   scrapper:
     build:

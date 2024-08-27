@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s # Default scrape interval, can be overridden by individual scrape configs
+  evaluation_interval: 15s # Evaluate rules every 15 seconds
+
+scrape_configs:
+  - job_name: 'crypto_deposits_metrics'
+    metrics_path: '/prometheus' # Default metrics path, adjust if necessary
+    scheme: 'http'
+    static_configs:
+      - targets: ['localhost:3005']
+    params:
+      blockchain: ['ethereum']
+      network: ['mainnet']
+      token: ['ETH']
+    scrape_interval: 1m # Scrape every minute

@@ -2,7 +2,7 @@ import { Mongoose } from "mongoose";
 
 import { EthereumGateway } from "adapters/gateways/RPC/EthereumGateway";
 import { DepositsTrackerService } from "core/services/DepositsTrackerService";
-import { IDepositsTrackerService } from "core/types.services";
+import { DepositsTrackerService as IDepositsTrackerService } from "core/types.services";
 import createMongooseConnection from "database/createMongooseConnection";
 import envs from "utils/env";
 import { IDepositsRepository } from "core/types.repositories";
@@ -50,6 +50,9 @@ const getEthGateway = async () => {
     ethGateway = new EthereumGateway({
       rpcUrl: "https://eth-mainnet.g.alchemy.com",
       apiKey: envs.ALCHEMY_API_KEY,
+      metadata: {
+        network: "mainnet",
+      },
     });
   }
 

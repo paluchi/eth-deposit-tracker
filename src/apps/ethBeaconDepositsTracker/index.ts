@@ -1,4 +1,4 @@
-import { getEthBeaconDepositTrackerService } from "contexts/EthBeacon";
+import { getEthBeaconDepositTrackerService } from "./context";
 import envs from "utils/env";
 
 const main = async () => {

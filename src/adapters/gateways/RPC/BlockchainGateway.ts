@@ -9,6 +9,9 @@ interface BlockchainGatewayConfig {
   provider: IBlockchainProvider;
   batchSize?: number; // Number of items to fetch in a batch
   retries?: number; // Number of retries for rate-limited requests
+  blockchain: string;
+  network: string;
+  token: string;
 }
 
 interface QueueItem {
@@ -23,14 +26,23 @@ export class BlockchainGateway implements IBlockchainGateway {
   private isFetching = false;
   private retries: number;
 
+  public blockchain: string;
+  public network: string;
+  public token: string;
+
   constructor(config: BlockchainGatewayConfig) {
     this.provider = config.provider;
     this.batchSize = config.batchSize || 15;
     this.retries = config.retries || 15;
+    this.blockchain = config.blockchain;
+    this.network = config.network;
+    this.token = config.token;
   }
 
   // Generic method to add a fetch operation to the queue
-  private async queueFetchOperation<T>(fetchCallback: () => Promise<T>): Promise<T> {
+  private async queueFetchOperation<T>(
+    fetchCallback: () => Promise<T>
+  ): Promise<T> {
     return new Promise<T>((resolve) => {
       this.fetchQueue.push({ fetchCallback, resolvePromise: resolve });
       this.processFetchQueue();
@@ -68,7 +80,11 @@ export class BlockchainGateway implements IBlockchainGateway {
       if (retries > 0 && error?.error?.code === 429) {
         console.warn(`Rate limit exceeded. Retrying in ${backoff}ms...`);
         await sleep(backoff);
-        return this.executeFetchWithRetry(fetchCallback, retries - 1, backoff * 2);
+        return this.executeFetchWithRetry(
+          fetchCallback,
+          retries - 1,
+          backoff * 2
+        );
       } else {
         console.error("System could not recover from rate limit error");
         throw error;
@@ -77,7 +93,9 @@ export class BlockchainGateway implements IBlockchainGateway {
   }
 
   // Fetch transaction data
-  public async getTransactionData(txHash: string): Promise<TransactionData | null> {
+  public async getTransactionData(
+    txHash: string
+  ): Promise<TransactionData | null> {
     return this.queueFetchOperation(async () => {
       const tx = await this.provider.getTransaction(txHash);
       if (tx) {
@@ -109,7 +127,9 @@ export class BlockchainGateway implements IBlockchainGateway {
     blockNumberOrHash: number | string
   ): Promise<TransactionData[] | null> {
     console.info("Fetching block transactions from block:", blockNumberOrHash);
-    const block = await this.queueFetchOperation(() => this.provider.getBlock(blockNumberOrHash));
+    const block = await this.queueFetchOperation(() =>
+      this.provider.getBlock(blockNumberOrHash)
+    );
 
     if (block && block.transactions) {
       const deposits: TransactionData[] = [];

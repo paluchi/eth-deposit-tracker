@@ -4,7 +4,7 @@
 sleep 10
 
 # Set up the Telegram notification channel using Grafana API
-curl -X POST http://admin:admin@localhost:3000/api/alert-notifications \
+curl -X POST http://admin:admin@localhost:3005/api/alert-notifications \
 -H "Content-Type: application/json" \
 -d '{
       "name": "Telegram",
