@@ -43,22 +43,26 @@ export class DepositsTrackerService implements IDepositsTrackerService {
   public async processBlockTransactions(
     blockNumberOrHash: string | number = "latest"
   ): Promise<void> {
-    const transactions = await this.blockchainGateway.fetchBlockTransactions(
-      blockNumberOrHash
-    );
+    try {
+      const transactions = await this.blockchainGateway.fetchBlockTransactions(
+        blockNumberOrHash
+      );
 
-    const sotreBatchSize = 5;
-    if (transactions && transactions.length > 0) {
-      const batches = Math.ceil(transactions.length / sotreBatchSize);
-      for (let i = 0; i < batches; i++) {
-        const batch = transactions.slice(
-          i * sotreBatchSize,
-          (i + 1) * sotreBatchSize
-        );
-        for (const tx of batch) {
-          await this.processTransaction(tx);
+      const sotreBatchSize = 5;
+      if (transactions && transactions.length > 0) {
+        const batches = Math.ceil(transactions.length / sotreBatchSize);
+        for (let i = 0; i < batches; i++) {
+          const batch = transactions.slice(
+            i * sotreBatchSize,
+            (i + 1) * sotreBatchSize
+          );
+          for (const tx of batch) {
+            await this.processTransaction(tx);
+          }
         }
       }
+    } catch (error: any) {
+      //
     }
   }
 

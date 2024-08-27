@@ -85,6 +85,16 @@ export class BlockchainGateway implements IBlockchainGateway {
           retries - 1,
           backoff * 2
         );
+      }
+      // Check if it's a TIMEOUT error
+      else if (error?.error?.code === -32603) {
+        console.warn(`Timeout error. Retrying in ${backoff}ms...`);
+        await sleep(backoff);
+        return this.executeFetchWithRetry(
+          fetchCallback,
+          retries - 1,
+          backoff * 2
+        );
       } else {
         console.error("System could not recover from rate limit error");
         throw error;
